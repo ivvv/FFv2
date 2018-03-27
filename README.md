@@ -4,6 +4,8 @@ _R. Hopwood, I. Valtchanov, N. Marchili, L.D. Spencer, J. Scott, C. Benson, N. H
 
 Feb 2018
 
+**HERSCHEL-HSC-TN-2321**
+
 ## Abstract
 
 The SPIRE Spectral Feature Finder Catalogue is a result of an automated run of the Spectral Feature Finder (FF). The FF is designed to extract significant spectral features from FTS data products. Only High Resolution (HR) sparse or mapping observations produce spectral features, while for Low Resolution (LR) sparse or mapping observations the FF only provides the best fit continuum parameters. The FF engine iteratively searches for peaks over a set of signal-to-noise ratio (SNR) thresholds, either in the HR spectra of the two central detectors (sparse mode) or in each pixel of the two hyper-spectral cubes (mapping). At the end of each iteration the FF simultaneously fits the continuum and the features found. The residual of the fit is used for the next iteration. The final FF catalogue contains emission and absorption features and their respective SNR for each observation, SNR is negative for absorption features. Line fluxes are not included as extracting reliable line flux from the FTS data is a complex process that requires careful evaluation and analysis of the spectrum. The FTS Spectral Feature Finder Catalogue is 100% complete for features above SNR=10, and 50-70% complete down to SNR=5. The full SPIRE Automated Feature Extraction Catalogue (SAFECAT) contains 166,442 features from 822 sparse and mapping observations, 163,733 of these are at SNR > 5.
