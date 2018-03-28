@@ -4,11 +4,9 @@ _R. Hopwood, I. Valtchanov, N. Marchili, L.D. Spencer, J. Scott, C. Benson, N. H
 
 Feb 2018
 
-**HERSCHEL-HSC-TN-2321**
-
 ## Abstract
 
-The SPIRE Spectral Feature Finder Catalogue is a result of an automated run of the Spectral Feature Finder (FF). The FF is designed to extract significant spectral features from FTS data products. Only High Resolution (HR) sparse or mapping observations produce spectral features, while for Low Resolution (LR) sparse or mapping observations the FF only provides the best fit continuum parameters. The FF engine iteratively searches for peaks over a set of signal-to-noise ratio (SNR) thresholds, either in the HR spectra of the two central detectors (sparse mode) or in each pixel of the two hyper-spectral cubes (mapping). At the end of each iteration the FF simultaneously fits the continuum and the features found. The residual of the fit is used for the next iteration. The final FF catalogue contains emission and absorption features and their respective SNR for each observation, SNR is negative for absorption features. Line fluxes are not included as extracting reliable line flux from the FTS data is a complex process that requires careful evaluation and analysis of the spectrum. The FTS Spectral Feature Finder Catalogue is 100% complete for features above SNR=10, and 50-70% complete down to SNR=5. The full SPIRE Automated Feature Extraction Catalogue (SAFECAT) contains 166,442 features from 822 sparse and mapping observations, 163,733 of these are at SNR > 5.
+The SPIRE Spectral Feature Finder Catalogue is a result of an automated run of the Spectral Feature Finder (FF). The FF is designed to extract significant spectral features from FTS data products. Only High Resolution (HR) sparse or mapping observations produce spectral features, while for Low Resolution (LR) sparse or mapping observations the FF only provides the best fit continuum parameters. The FF engine iteratively searches for peaks over a set of signal-to-noise ratio (SNR) thresholds, either in the HR spectra of the two central detectors (sparse mode) or in each pixel (SPIRE Long Wavelength - SLW, and SPIRE Short Wavelength - SSW) of the two hyper-spectral cubes (mapping). At the end of each iteration the FF simultaneously fits the continuum and the features found. The residual of the fit is used for the next iteration. The final FF catalogue contains emission and absorption features and their respective SNR for each observation, SNR is negative for absorption features. Line fluxes are not included as extracting reliable line flux from the FTS data is a complex process that requires careful evaluation and analysis of the associated spectra. The FTS Spectral Feature Finder Catalogue is 100% complete for features above SNR=10, and 50-70% complete down to SNR=5. The full SPIRE Automated Feature Extraction Catalogue (SAFECAT) contains 166,442 features from 822 sparse and mapping observations, 163,733 of these features are at SNR > 5 with a subset of XXX features with SNR > 10.
 
 ## Table of Contents
 
@@ -33,12 +31,12 @@ The SPIRE Spectral Feature Finder Catalogue is a result of an automated run of t
 
 ## <a name="ff_obs"></a>Observations
 
-The observations with FF products are listed in four coma-separated-value files:
+The observations with FF products are listed in four coma-separated-value (.csv) files:
 
- - `hrSparseObservations.csv`: lists all the high resolution (HR) sparse-mode observations processed by the FF, including the HR part of H+LR observations. For each observation the file provides the following information: observation ID (`obsid`); source name (`target`); if the source is known to be featureless (`knownFeatureless`), and therefore no FF catalogue is provided; if the source has a significant spatial size (*semiExtended* or fully *extended*) or if it is *pointLike* (`sourceExt`); what data product was used for the FF (`dataUsed`), which can be the standard pipeline product *spg* from the *Herschel* Science Archive, a SPIRE Spectrometer calibration source Highly Processed Data Product *calHpdp* or data corrected for high background or foreground emission *bgs*; if a focused check of <sup>12</sup>`CO(7-6)` and `[CI](2-1)` resulted in one of these being added to the associated FF catalogue (`nccApplied`); and if any `bespokeTreatment` was needed, such as special parameter settings.<br/>
- There are 868 observations in the file, but note that not all of them have features, so there is no FF catalogue in this case. 
+ - `hrSparseObservations.csv`: lists all the high resolution (HR) sparse-mode observations processed by the FF, including the HR part of H+LR observations. For each observation the file provides the following information: observation ID (`obsid`); source name (`target`); if the source is known to be featureless (`knownFeatureless`), and therefore no FF catalogue is provided; if the source has a significant spatial size (*semiExtended* or fully *extended*) or if it is *pointLike* (`sourceExt`); what data product was used for the FF (`dataUsed`), which can be the standard pipeline product *spg* from the *Herschel* Science Archive, a SPIRE Spectrometer calibration source Highly Processed Data Product *calHpdp* or data corrected for high background or foreground emission *bgs*; if a focused check of <sup>12</sup>`CO(7-6)` and `[CI](2-1)`, i.e., the neutral carbon check (ncc), resulted in one of these features being added to the associated FF catalogue (`nccApplied`); and if any `bespokeTreatment` was needed, such as special parameter settings.<br/>
+ There are 868 observations in the file, but note that no FF catalogue entry is provided for cases of no spectral features found within an observation.  There are 822 observations that do have FF catalogue entries for spectral features identified.
  - `hrMappingObservations.csv`: lists the HR mapping observations included in the FF run. The file contains the `obsid`, the target name (`target`), the  spectral resolution (`resolution`), the instrument mode (`instmode`) and the spatial sampling (`mapSampling`). <br/>
- There are 180 observations and all of them have FF catalogues.
+ There are 180 observations and all of them have FF catalogue entries.
  - `lrSparseObservations.csv`: lists the obsids of the LR sparse observations. There are 293 observations in total. 
  - `lrMappingObservations.csv`: lists the obsids of the LR mapping observations. There are 106 observations.
 
@@ -54,7 +52,7 @@ The following steps are carried out:
 
 ### 1. <a name="step1"></a> Fitting and subtracting the continuum
 
-A resampled copy of the input spectrum is shifted by one frequency bin (5 GHz) and subtracted from itself, to look for "jumps" that correspond to significant peaks. The strong peaks are masked in the input spectrum before a 3<sup>rd</sup> order polynomial is fitted (2<sup>nd</sup> order for low resolution observations). Neither the masking nor the peaks are carried forwards into the main finding loop, only the polynomial model.
+A resampled copy of the input spectrum is shifted by one frequency bin (5 GHz) and subtracted from itself, to look for "jumps" that correspond to significant peaks. The strong peaks are masked in the input spectrum before a 3<sup>rd</sup> order polynomial is fitted (2<sup>nd</sup> order for low resolution observations). Neither the masking nor the peaks are carried forward into the main finding loop, only the polynomial model.
 
 This is the only stage for LR observations (sparse or mapping) for which we only keep the derived continuum parameters.
 
@@ -70,25 +68,25 @@ Each new peak represents a potential new feature, so a sinc function is added to
 
 A global fit is performed using the input spectrum and total model, so all found and potential features, and the continuum, are simultaneously fitted. 
 
-For each SNR iteration, the resulting fitted sinc models for the potential features found are put through several reliability checks (e.g. checking their fitted position and looking for multiple peaks fitted to partially resolved features).
+For each SNR iteration, the resulting fitted sinc models for the potential features found are put through several reliability checks (e.g., checking their fitted position and looking for multiple peaks fitted to partially resolved features).
 
-Features that are accepted as reliable have their fitted position limited by 2 GHz before the global fit is repeated.
+Features that are accepted as reliable have their fitted position limited to within a 2 GHz window before the global fit is repeated.
 
-The resulting total model is carried forwards to the next iteration, with the frequency either-side of each new feature masked by a SNR threshold dependent width, where no new features are permitted in any of the following finding iterations. The existing masking is updated to account for movement of already found features, noting that these have already had the position of their respective sinc models limited.
+The resulting total model is carried forward to the next iteration, with the frequency either-side of each new feature masked by a SNR threshold dependent width, where no new features are permitted in any of the following finding iterations. The existing masking is updated to account for movement of already found features, noting that these have already had the position of their respective sinc models limited.
 
 ### 3. <a name="step3"></a>Final SNR estimate and final check
 
-The final SNR is calculated using the fitted peaks and total model subtracted residual spectrum as `[fitted peak]/[local standard deviation]`.
+The final SNR is calculated using the fitted peaks and the total-model-subtracted residual spectrum as `[fitted peak]/[local standard deviation]`.
 
-Features with absolute SNR > 5 are carried forwards to the final check - a search for fitting to the sinc wings of significant features, while trying preserve any \[CI\](2-1) detection.
+Features with absolute SNR > 5 are carried forward to the final check - a search for fitting to the sinc wings of significant features, while trying to preserve any \[CI\](2-1) detection.
 
 ### 4. <a name="step4"></a>FF feature flags
 
-To assess the likely realness of a feature found, a goodness of fit metric has been developed that combines the goodness of fit for each feature found (GoF) with the goodness of fit of the total model (ToFE). GoF and ToFE are used in conjunction with frequency regions (at the end of the bands and identified as suffering higher than average noise) to assign a flag to each extracted feature (FF flag).
+To assess the distinction between false and true spectral features and to identify the likelihood of prospective spectral features being correctly identified, a goodness of fit metric has been developed that combines the goodness of fit for each individual feature found (GoF) with the goodness of fit of the total model (Total Fit Evaluation - ToFE). GoF and ToFE are used in conjunction to assign a flag to each identified spectral feature (FF flag). The relative weighting of the Gof and ToFE in determining the spectral feature flags varies for different frequency regions within the SLW and SSW bands (e.g., the band edges and identified as suffering higher than average noise and thus are flagged using different criteria -- see below).
 
-The Feature Finder requires a goodness of fit metric that is not sensitive to the continuum or to line flux. Such a metric, `r`, can be calculated using a cross-correlation function between fitted feature and total model. `r` is not sensitive to the continuum, due to the subtraction of local averages. `r` is also not sensitive to line flux, because of division by the standard deviations.
+The Feature Finder requires a goodness of fit metric that is not sensitive to the continuum or to line flux. Such a statistical metric, `r`, is calculated using a cross-correlation function between fitted feature and total model. `r` is not sensitive to the continuum, due to the subtraction of the local mean. `r` is also not sensitive to line flux, because of division by the standard deviation of a given spectral region.
 
-ToFE is a Bayesian method to compare the evidences (also known as model likelihoods) for two concurrent models: with and without a particular feature included. It is therefore complimentary to `r`. For both models the fitting engine calculates the evidences, which are logarithms of probabilities. Their difference provides the odds for the feature, the smaller the odds the better the model with the feature included. As this is a probabilistic check, no assumption about the noise is made and therefore ToFE is insensitive to systematic noise.
+ToFE is a Bayesian method to compare the evidence (also known as model likelihood) for two concurrent models: with and without a particular feature included. It is therefore complimentary to the `r` parameter identified above. For both models the fitting engine calculates the evidence, which is a set of probability logarithms. Their difference provides the odds for the feature, the smaller the odds the better the model with the feature included. As this is a probabilistic check, no assumption about the noise is made and therefore ToFE is insensitive to systematic noise.
 
 #### Flag definitions (metadata keyword)
 
@@ -116,7 +114,7 @@ The following regions are considered as noisy:
 
 ### 5. <a name="step5"></a>Source radial velocity estimate
 
-At the end of the Feature Finder (FF) process, for each high resolution (HR) observation, the radial velocity is estimated by searching for <sup>12</sup>`CO` lines and the `[NII]` 205 µm atomic line, in the respective feature catalogue. In addition, a cross-correlation (XCOR) technique is applied using the feature catalogue and a template line catalogue, which includes most of the characteristic molecular and atomic lines in the far-infrared. For FF catalogues where few features have been found, XCOR includes an additional check with `[NII]` (for SSW) and <sup>12</sup>`CO(7-6)` lines. These FF based estimates are compared to radial velocities from [Simbad](http://simbad.u-strasbg.fr/simbad/) and from a collection by the HIFI team (Lisa Benamati, private communication). 
+At the end of the Feature Finder (FF) process, for each high resolution (HR) observation, the radial velocity is estimated by searching for <sup>12</sup>`CO` lines and the `[NII]` 205 µm atomic line, in the respective feature catalogue with identified <sup>12</sup>`CO` taking priority over `[NII]`. In addition, a cross-correlation (XCOR) technique is applied using the feature catalogue and a template line catalogue, which includes most of the characteristic molecular and atomic lines in the far-infrared. For FF catalogues where few features have been found, XCOR includes an additional check with `[NII]` (for SSW) and <sup>12</sup>`CO(7-6)` lines. These FF based estimates are compared to radial velocities from [Simbad](http://simbad.u-strasbg.fr/simbad/) and from a collection by the HIFI team (Lisa Benamati, private communication). 
 
 The final radial velocity estimates included in the FF catalogues (for HR observations) are selected from all the available values.
 
@@ -126,9 +124,9 @@ More details on the methods will be provided in *Hopwood et al* and *Hładczuk e
 
 The following radial velocity related metadata are included in each FF catalogue:
 
-- `RV` - the radial velocity in the local standard of rest, in km/s. For sources at high redshift we use the convention that the radial velocity is equal to `c*z`, where `c` is the speed of light and `z` is the redshift: <br/> `1+z` = f<sub>emitted</sub>/f<sub>observed</sub>, where 'f' is the frequency.
+- `RV` - the radial velocity in the local standard of rest, in km/s. For sources at high redshift we use the convention that the radial velocity is equal to `c*z`, where `c` is the speed of light and `z` is the redshift: <br/> `1+z` = &nu<sub>emitted</sub>/&nu<sub>observed</sub>, where '&nu' is the frequency.
 - `RV_ERR` - the error on the estimate, when available.
-- `RV_FLAG` - the flag indicating the quality and the source of the radial velocity. Priority is given to the FF estimate when both XCOR and FF have comparable quality. The flags can be `FF`, `FF?`, `XCOR`, `XCOR?`, `H?`, `S?` or `nan` when unavailable. The question marks are used as a warning that the value is uncertain.
+- `RV_FLAG` - the flag indicating the quality and the source of the radial velocity. Priority is given to the FF estimate when both XCOR and FF have comparable quality. The flags can be `FF`, `FF?`, `XCOR`, `XCOR?`, `H?`, `S?` or `nan` when unavailable (see descriptions in the list below). The question marks are used as a warning that the value is uncertain.
     * `FF` - confident estimate based on the Feature Finder <sup>12</sup>`CO` or `[NII]` checks, also in agreement with the HIFI team collected radial velocities: either the difference is less than 20 km/s or the fractional difference is within 20%.
     * `FF?` - good estimate based on the Feature Finder <sup>12</sup>`CO` or `[NII]` checks, but either the difference with the HIFI provided value is larger than 20 km/s or the fractional difference is above 20%.
     * `XCOR`- confident estimate based on the cross-correlation method and `[NII]`, <sup>12</sup>`CO(7-6)` checks, also in agreement with the HIFI team collected radial velocities: either the difference is less than 20 km/s or the fractional difference is within 20%.
@@ -143,7 +141,7 @@ The radial velocities are still preliminary and in many cases, where there are o
 
 ### 6. <a name="step6"></a>Neutral Carbon Check
 
-The Neutral Carbon Check (NCC) is a focused check of <sup>12</sup>CO(7-6) and \[CI\](2-1) using the radial velocity from the previous step and the known positions of these lines. If either of this close pair were missed by the main FF process, they are added to the final list of features found.
+The Neutral Carbon Check (NCC) is a focused check of the <sup>12</sup>CO(7-6) and \[CI\](2-1) spectral region using the radial velocity from the previous step and the known positions of these lines. If either one of these neighbouring features were missed by the main FF process, the NCC-identified missing feature is added to the final list of features found.
 
 ### 7. <a name="step7"></a>Bespoke Handling
 
@@ -156,11 +154,11 @@ For HR mapping observation the initial list of features for the subsequent FF it
 _**Highly Processed Data Products**_
 
 - Highly Processed Data Products (HPDPs) are available for the repeated observations of SPIRE Spectrometer calibration sources presented in [Hopwood et al. (2015) (arXiv:1502.05717)](http://adsabs.harvard.edu/abs/2015MNRAS.449.2274H). These HPDPs are SPIRE spectra that have been corrected for pointing offset and, where necessary, for source extent or high background emission.
-- If a HPDP was used instead of the standard _Herschel_ Science Archive product, this is reported under the metadata entry `hpdp` for the individual FF feature catalogues, and in the `HPDP` column of SAFECAT.
+- If an HPDP was used instead of the standard _Herschel_ Science Archive product, this is reported under the metadata entry `hpdp` for the individual FF feature catalogues, and in the `HPDP` column of SAFECAT.
 - The `Flag` column (in [the FF HR Sparse point-source calibrated product pages](http://herschel.esac.esa.int/twiki/bin/view/Public/HrSparsePage01)) indicates whether a HPDP was used, with a `HPDP` flag.
 - The HPDPs themselves can be accessed from the [SPIRE-S calibration targets legacy data page](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/cal_targets).
 
-_**Background Subtracted Spectra**_
+_**Background Subtracted (BGS) Spectra**_
 
 - A number of high resolution (HR) observations were visually assessed as suffering from the same "double bump" systematic noise that is corrected in LR data (where it was more extreme and prevalent in a large fraction of LR observations, see Marchili et al. 2016).
 - This issues is only seen in a small number of HR observations of faint point-like targets (in total 84).
@@ -176,19 +174,19 @@ If, for a particular observations, non-default FF parameters were used or bespok
 
 _**Fewer negative SNR thresholds**_
 
-By default, the FF iterates over a number of SNR thresholds when looking for peaks: +[100, 50, 30, 10, 5, 3] followed by [-100, -50, -30]. For one particularly spectral rich observation (1342210847), if the default set of negative SNR thresholds are used, so many features are found there are not enough unmasked data points available for the final SNR estimates and many features are thus discarded. This lost of features is prevented by omitting the -30 and -10 SNR thresholds.
+By default, the FF iterates over a number of SNR thresholds when looking for peaks: +[100, 50, 30, 10, 5, 3] followed by [-100, -50, -30, -10]. For one particularly spectral rich observation (OBSID: 1342210847), if the default set of negative SNR thresholds is used, there are so many features found that there are not enough unmasked data points available for the final SNR estimates, and thus many features are discarded. This loss of features is prevented by omitting the -30 and -10 SNR threshold iterations.
 
 _**Final SNR estimate**_
 
 To optimise the final SNR estimate, the FF stipulates that the number of unmasked data points in the local region used to calculate the residual standard deviation must be at least 17 (5 GHz). If this condition is not met, then the local region around the fitted peak is widened.
 
-For the observations of two spectral rich sources (1342192834,1342197466) this condition is never matched for the majority of the features found, and so for the default settings, the majority of features are discarded. So in these two cases no minimum is set for the number of data points required for the the final SNR estimate to go ahead. 
+For the observations of two spectral rich sources (OBSIDs: 1342192834 and 1342197466) this condition is never matched for the majority of the features found; using the default FF settings, the majority of features are discarded. For these two cases, no minimum is set for the number of data points required for the the final SNR estimate to go ahead. 
 
 _**Features added by hand**_
 
 During the FF SNR threshold iterations, the SNR is taken using the spectral dataset "error" column. For a handful of observations this can lead to no significant SNR peak at the position of significant spectral peaks and the corresponding features are therefore never found by the FF, regardless of how low the SNR threshold drops.
 
-A handful of missing significant features were added at the appropriate SNR threshold during the FF process for six observations: 1342197466, 1342248242, 1342216879, 1342197466, 1342193670, 1342210847.
+A handful of missing significant features were added at the appropriate SNR threshold during the FF process for six observations: OBSIDs 1342197466, 1342248242, 1342216879, 1342197466, 1342193670, and 1342210847.
 
 ## <a name="ff_prod"></a>The FF products
 
@@ -196,12 +194,12 @@ A handful of missing significant features were added at the appropriate SNR thre
 
 The Feature Finder (FF) produces feature catalogues for all SPIRE Spectrometer HR sparse-and mapping mode observations, unless these are of known featureless sources (e.g. Vesta, Ceres) or the target is not included in the FF list of observations (e.g. dark sky and sources with well developed models, including Uranus, Neptune and Mars). Failed observations and calibration observations with unusual settings are also omitted.
 
-The Feature Finder (FF) catalogues are available as FITS files with the catalogue and its metadata in the first HDU. 
+The Feature Finder (FF) catalogues are available as FITS files with the catalogue and its metadata in the first Header Data Unit (HDU). 
 
 The **sparse mode** catalogue table contains the following columns:
 
 - `frequency` - the measured frequency, in GHz, of features found with SNR > 5 (noting that negative SNR correspond to absorption features)
-- `frequencyError` - the error on the measured frequency
+- `frequencyError` - the error on the measured frequency, also in GHz
 - `SNR` - the SNR measured using the fitted peak and the local noise in the residual spectrum (after the total fitted model has been subtracted)
 - `detector` - which detector the feature was found in (SLWC3 or SSWD4 for sparse-mode observations)
 - `featureFlag` - a flag to show if the fit is considered good or poor and if the feature is in a high noise or lower noise region of the spectrum. The flags are explained in more detail in section [_FF feature flags_](#step4).
@@ -214,13 +212,13 @@ The **mapping mode** catalogue table contains the following _additional_ columns
 
 - `row` - the cube row pixel where the feature is found 
 - `column` - the cube column pixel
-- `ra` - the RA (in degrees) where the feature is found 
-- `dec` - the Declination (in degrees)
+- `ra` - the RA (in degrees) for the corresponding pixel where the feature is found 
+- `dec` - the Declination (in degrees) for the corresponding pixel where the feature is found 
 - `array` - instead of the detector name, this column provides the FTS array name, can be `SSW` or `SLW`.
 
-**Note:** the SSW and SLW hyper-spectral cubes have different world-coordinate-systems (WCS), their pixel size and centres are not matched, i.e. `row` and `column` are `array` dependent.
+**Note:** the SSW and SLW hyper-spectral cubes have different world-coordinate-systems (WCS), their pixel size and centres are not matched, i.e., `row` and `column` are `array` dependent. This is clearly evident within the SLW and SSW maps presented in the mapping postacrds.
 
-In addition to the catalogue table, the mapping FITS file contains 3 more HDU extensions: `velocity`, `velError` and `velFlag`. These have the same dimensions as the SSW cube and each pixel contains the derived velocity from both SSW and SLW, its error and flag respectively. Pixels without velocity estimate are encoded as `NaN`.
+In addition to the catalogue table, the mapping FITS file contains 3 more HDU extensions: `velocity`, `velError` and `velFlag`. These have the same dimensions as the SSW cube and each pixel contains the derived velocity from both SSW and SLW, its error, and flag, respectively. Pixels without velocity estimate are encoded as `NaN`.
 
 The catalogue FITS extension metadata contain the following information:
 
@@ -248,29 +246,29 @@ SAFECAT is distributed as a FITS table with the catalogue and its metadata in th
 - the (row,column) pixel for mapping mode or (0,0) for sparse (`row, column`);
 - the RA and Dec of the central detectors for sparse mode or the RA and Dec of the corresponding (row,column) pixel for mapping (`RA, Dec`);
 - the bias mode of the observation, which can be nominal or bright (`biasMode`);
-- the bolometer detector name (sparse) or array name (mapping) the feature was detected in  (`detector`). <br/>Note that because of the two bands overlap region (944-1018 GHz) feature found within the overlap may occur twice for any given observation. This is a potential duplication for **sparse mode**, but not applicable for mapping as the spectral maps for SSW and SLW have different WCS, so the pixels do no overlap;
+- the bolometer detector name (sparse) or array name (mapping) the feature was detected in  (`detector`). <br/>Note that because of the SLW/SSW band overlap region (944-1018 GHz), features found within the overlap may occur twice for any given observation. This is a potential duplication for **sparse mode**, but is not directly applicable for mapping mode as the spectral maps for SSW and SLW have different WCS, so the overlapping SLW/SSW pixels do not correspond to the exact same spatial coverage region of the sky;
 - the maximum SLW continuum level (`maxContinuum`);
 - the fitted feature position in GHz and the error on this measurement (`frequency, frequency error`), in LSRk frame.
 - the signal-to-noise ratio of fitted peak to local noise in the full residual (`SNR`);
 - the feature flag, as explained above (`featureFlag`);
 - the source radial velocity, in km/s, estimated from the Feature Finder results or the associated HIFI estimate (which comes from published literature) or from SIMBAD;
-- the radial velocity uncertainty and flag (`radVelErr, radVelFlag`);
-- whether a highly processed data product or background corrected data were used (`HPDP, BGS`);
+- the radial velocity uncertainty in km/s and associated quality flag (`radVelErr, radVelFlag`);
+- whether a highly processed data product or background corrected data product was used (`HPDP, BGS`);
 - and whether a focused check of <sup>12</sup>`CO(7-6)` and `[CI](2-1)` resulted in one of these being added to the catalogue after the main script was run (`ciCheck`);
 
 The metadata provides the feature flag definitions; the minimum SNR cut applied (5); the frequency range avoided at the ends of the bands (10 GHz); and lists two special calibration observations and the unique IDs assigned for the purpose of SAFECAT only, as they consist of two sparse pointings in one observations.
 
 ### <a name="cont"></a> Continuum fit parameters
 
-The SPIRE FTS instrumental line shape is essentially a sinc-function (`sin(x)/x`). The sinc-like wings of each feature introduce ringing, which although decreasing in amplitude, do extend over the whole frequency range. Therefore, to gain a good fit to the continuum, this should be simultaneously fitted with the main spectral features.
+The SPIRE FTS instrumental line shape is essentially a sinc-function (`sin(x)/x`). The sinc-like wings of each feature introduce ringing, which although decreasing in amplitude, does extend over the whole frequency range. Therefore, to gain a good fit to the continuum, this should be simultaneously fitted with the main spectral features.
 
-During the Feature Finder finding and fitting process, a 3<sup>rd</sup> order polynomial (2<sup>nd</sup> order for LR) is fitted to the continuum of each _per band_ spectrum in conjunction with sinc functions for each feature found. The resulting continuum fit may be hard to recreate, unless a similar procedure is carried out. Therefore the best fit polynomial parameters are provided with the other Feature Finder products.
+During the Feature Finder finding and fitting process, a 3<sup>rd</sup> order polynomial (2<sup>nd</sup> order for LR) is fitted to the continuum of each _per band_ spectrum in conjunction with sinc functions for each feature found. The resulting continuum fit may be hard to precisely recreate, unless a similar procedure is carried out. Therefore the best fit polynomial parameters are provided with the other Feature Finder products.
 
 The parameters are of the form:<br/> `p0 + p1*freq + p2*freq^2 + p3*freq^3` (or `p0 + p1*freq + p2*freq^2` for LR).
 
 The frequency ranges for the SPIRE FTS, used in the continuum calculations, are [446.99, 1017.80] GHz for SLW and [944.05, 1567.91] GHz for SSW.
 
-For a given observation, the associated _fittedContinuumParameters_ FITS file contains a table in the first HDU with the parameters for each detector that has been through the Feature Finder machine: the centre detectors for sparse observations and for each pixel for mapping.
+For a given observation, the associated _fittedContinuumParameters_ FITS file contains a table in the first HDU with the parameters for each detector that has been through the Feature Finder algorithm: the centre detectors for sparse observations, and each pixel for mapping observations.
 
 For **sparse mode** the fitted polynomial is also provided as a _Herschel_ spectrum dataset, with the best fit parameters reported in the metadata. The dataset is stored in a FITS file with each detector in a separate HDU, identified by the detector name, e.g. hdu["SSWD4"] will contain the continuum spectrum for the central detector of the SSW bolometer array. The frequency grid in these spectrum datasets is the same as the original spectra, so these can be used directly to subtract the continuum.
 
@@ -278,20 +276,17 @@ For **sparse mode** the fitted polynomial is also provided as a _Herschel_ spect
 
 ### Sparse mode
 
-The Feature Finder results are visually summarised per observation in a “postcard”. Each postcard compares the centre detectors of the input spectra, the best fit to the continuum and ticks representing the features found (with these arbitrarily scaled by the signal-to-noise). By default, the Feature Finder operates on point-source calibrated data, which has flux density units of Jy. For sources with some spatial extent there is also a postcard for the extended-source calibrated data, which has surface brightness units of W/m2/Hz/sr. Both postcards for such sources are included in the product pages, accessible via the tables at the end of the [Feature Finder Release Note](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/README.html). 
+The Feature Finder results are visually summarised per observation in a “postcard”. Each postcard compares the input spectra for the centre detectors, the best fit to the continuum, and includes vertical ticks representing the features found (with these arbitrarily scaled by the signal-to-noise). By default, the Feature Finder operates on point-source calibrated data, which has flux density units of Jy. For sources with some spatial extent there is also a postcard for the extended-source calibrated data, which has surface brightness units of W/m2/Hz/sr. Both postcards for such sources are included in the product pages, accessible via the tables at the end of the [Feature Finder Release Note](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/README.html). 
 
 If an observation of interest is of a partially or fully extended source, it is advisable to visually check both sets of FF results.
 
-For LR observations no features are provided, as LR was primarily aimed at providing a measurement of the continuum and there are few features found in these observations. However, two postcards are provided for LR, as many targets are semi-extended in nature and simply by comparing the postcards it may be possible to gauge which calibration scheme is more appropriate (or if there is a problem that may require further processing to correct for partial extent).
+For LR observations no features are provided, as LR was primarily aimed at providing a measurement of the continuum and there are few features found in these observations. However, two postcards are provided for LR, as many targets are semi-extended in nature and simply by comparing the postcards it may be possible to gauge which calibration scheme is more appropriate (or if there is a problem that may require further processing to correct for partial extent). Visual inspection should evaluate the continuity of the SLW/SSW spectra within the spectral overlap region.
 
 All HR and LR postcards are collected in the the [POSTcard CATalogues (POSTCATs)](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/FF_1stRelease_products/POSTcardCAT/). These are provided as PDF files. There are POSTCATs that compare the point-source and extended-source calibrated results. For LR there is also a mapping POSTCAT that compares the results for the two types of hyper-spectral cubes available in the <em>Herschel</em> Science Archive.
 
 ### Mapping mode
 
-**TBW Lethbridge**
-
-Explain what is shown in the postcards for mapping
-
+The Feature Finder mapping results are also visually summarised per observation in a “postcard”. Each postcard is comprised of a 2x3 array of figures illustrating various aspects of the observation.  The left column illustrates the integrated flux associated with each band, with SLW on top and SSW on the bottom. Note the difference in pixel sizes for the SLW and SSW maps. Each of the integrated flux maps in the left column have two pixels identified for each band with coloured box outlines. For the SSW array, these correspond to the dimmest and brightest pixels within the map.  For the SLW array these pixels correspond to the closest SLW pixels to the identified brightest and dimmest pixels for the SSW array. The central column presents the spectra corresponding to the flagged pixels in the flux maps (brightest and dimmest integrated flux pixels for SSW, closet match for the SLW array) with SLW on top and SSW on the bottom. Also shown in the central column is the spectrum corresponding to the pixel with the most spectral features identified by the FF, again with SLW on top and SSW on the bottom. The upper right figure is a map of the number of lines identified by the FF in both the SLW and SSW arrays combined. This figure also has the pixel regions associated with the most lines in the SLW and SSW arrays identified with coloured box outlines. As the SLW pixels are larger than the SSW pixels, the SLW lines may be counted in multiple SSW pixels within this FF histogram map.  The lower right figure presents the FF radial velocities provided by the radial velocity routine. The results are shown on SSW pixels, with the pixel colour indicating the velocity (colourbar on the side), and a code within each SSW pixel indicating the quality of the radial velocity. Within the radial velocity map, a marker of `A' means all of the expected CO lines contributed to the radial velocity estimate, `N' means that the [NII] nitrogen spectral feature was used, and a number indicates the number of CO lines used in the radial velocity estimate (less than all of the expected lines were identified).  The header of the mapping postcard indicates the target name, as provided by the observer, and the observation number (OBSID).  Pixels outlined in green on the velocity map highlight pixels where the feature finder did find spectral features but the radial velocity routine did not provide an accurate velocity estimate. 
 
 # <a name="ff_web"></a>FF products access 
 
