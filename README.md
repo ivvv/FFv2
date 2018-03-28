@@ -2,9 +2,7 @@
 
 _R. Hopwood, I. Valtchanov, N. Marchili, L.D. Spencer, J. Scott, C. Benson, N. Hładczuk, E.T. Polehamption, N. Lu, G. Makiwa, D.A. Naylor, G. Noble, M.J. Griffin_
 
-This document: **HERSCHEL-HSC-TN-2321**
-
-Mar 2018
+**HERSCHEL-HSC-TN-2321**, Mar 2018
 
 ## Abstract
 
