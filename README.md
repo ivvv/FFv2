@@ -2,7 +2,9 @@
 
 _R. Hopwood, I. Valtchanov, N. Marchili, L.D. Spencer, J. Scott, C. Benson, N. Hładczuk, E.T. Polehamption, N. Lu, G. Makiwa, D.A. Naylor, G. Noble, M.J. Griffin_
 
-Feb 2018
+This document: **HERSCHEL-HSC-TN-2321**
+
+Mar 2018
 
 ## Abstract
 
@@ -512,5 +514,5 @@ href="http://herschel.esac.esa.int/twiki/bin/view/Public/LrMappingPage02
 </table>
 
 ---
-Ivan Valtchanov, HSC, 23 Feb 2018
+Ivan Valtchanov, HSC, 28 Mar 2018
 
