@@ -124,7 +124,7 @@ More details on the methods will be provided in *Hopwood et al* and *Hładczuk e
 
 The following radial velocity related metadata are included in each FF catalogue:
 
-- `RV` - the radial velocity in the local standard of rest, in km/s. For sources at high redshift we use the convention that the radial velocity is equal to `c*z`, where `c` is the speed of light and `z` is the redshift: <br/> `1+z` = &nu<sub>emitted</sub>/&nu<sub>observed</sub>, where '&nu' is the frequency.
+- `RV` - the radial velocity in the local standard of rest, in km/s. For sources at high redshift we use the convention that the radial velocity is equal to `c*z`, where `c` is the speed of light and `z` is the redshift: <br/> `1+z` = &nu;<sub>emitted</sub>/&nu;<sub>observed</sub>, where '&nu;' is the frequency.
 - `RV_ERR` - the error on the estimate, when available.
 - `RV_FLAG` - the flag indicating the quality and the source of the radial velocity. Priority is given to the FF estimate when both XCOR and FF have comparable quality. The flags can be `FF`, `FF?`, `XCOR`, `XCOR?`, `H?`, `S?` or `nan` when unavailable (see descriptions in the list below). The question marks are used as a warning that the value is uncertain.
     * `FF` - confident estimate based on the Feature Finder <sup>12</sup>`CO` or `[NII]` checks, also in agreement with the HIFI team collected radial velocities: either the difference is less than 20 km/s or the fractional difference is within 20%.
