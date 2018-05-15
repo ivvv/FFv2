@@ -152,6 +152,12 @@ For HR mapping observation the initial list of features for the subsequent FF it
 
 ####  Non-standard data
 
+_**Special calibration observations**_
+
+Two observations, 1342227785 and 1342227778, were performed with special setting at two beam-steering mirror positions. In principle the pipeline successfully process them as mapping mode. And they are available in the Herschel Science Archive as spectral cubes. with spatial coverage slightly better than sparse-mode and slightly worse than the intermediate sampling (4 BSM positions).
+
+For the Feature Finder we used those observations as two separate sparse mode observations. In order to avoid files with the same name we changed their obsids to `1001342227785` (BSM position 1) and `2001342227785` (BSM position 2) for `1342227785`, and to `1001342227778` and `2001342227778` for `1342227778`. Hence their postcards, continuum parameters and feature catalogues will be available under these OBSIDs.
+
 _**Highly Processed Data Products**_
 
 - Highly Processed Data Products (HPDPs) are available for the repeated observations of SPIRE Spectrometer calibration sources presented in [Hopwood et al. (2015) (arXiv:1502.05717)](http://adsabs.harvard.edu/abs/2015MNRAS.449.2274H). These HPDPs are SPIRE spectra that have been corrected for pointing offset and, where necessary, for source extent or high background emission.
@@ -275,10 +281,8 @@ SAFECAT\_v2 contains both sparse and mapping observations contains the following
 - `sampling`: the spatial sampling of the observations, can be `sparse`, `intermediate` or `full`. 
 - the operational day the observation was taken and the observation identifier (`opDay`);
 - `galactic`: whether the source is considered galactic (0) or extragalactic (1), based on the radial velocity;
-- the bias mode of the observation, which can be nominal or bright (`biasMode`);
-- the maximum SLW continuum level (`maxContinuum`);
-- whether a highly processed data product or background corrected data product was used (`HPDP, BGS`);
-- and whether a focused check of <sup>12</sup>`CO(7-6)` and `[CI](2-1)` resulted in one of these being added to the catalogue after the main script was run (`ciCheck`);
+- `opDay`: the operation day for the observation;
+- `hpdp`: whether a highly processed data product was used by the Feature Finder;
 
 The metadata provides the feature flag definitions; the minimum SNR cut applied (5); the frequency range avoided at the ends of the bands (10 GHz); and lists two special calibration observations and the unique IDs assigned for the purpose of SAFECAT only, as they consist of two sparse pointings in one observations.
 
