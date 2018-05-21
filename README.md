@@ -167,13 +167,13 @@ _**Highly Processed Data Products**_
 
 _**Background Subtracted (BGS) Spectra**_
 
-- A number of high resolution (HR) observations were visually assessed as suffering from the same "double bump" systematic noise that is corrected in LR data (where it was more extreme and prevalent in a large fraction of LR observations, see Marchili et al. 2016).
+- A number of high resolution (HR) observations were visually assessed as suffering from the same "double bump" systematic noise that is corrected in LR data (where it was more extreme and prevalent in a large fraction of LR observations, see [Marchili et al. (2017)](http://adsabs.harvard.edu/abs/2017MNRAS.464.3331M).
 - This issues is only seen in a small number of HR observations of faint point-like targets (in total 84).
-- The observations were corrected by subtracting a mean sum of smoothed off-axis detectors, as described in Hopwood et al. (2015).
+- The observations were corrected by subtracting a mean sum of smoothed off-axis detectors, as described in [Hopwood et al. (2015)](http://adsabs.harvard.edu/abs/2015MNRAS.449.2274H).
 - All BGS data were corrected using the HIPE Background Subtraction useful script in interactive mode.
 - If BGS data were used instead of the standard _Herschel_ Science Archive product, this is reported under the metadata entry `bgs` for the individual FF feature catalogues, and in the `BGS` column of SAFECAT.
 - The `Flag` column (in the FF HR Sparse point-source calibrated product pages) indicates whether BGS data was used, with a `BGS` flag.
-- [The BGS spectra are available here](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/background_subtracted/).
+- [The BGS spectra are available here](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/BKGS/).
 
 ####  Bespoke FF settings
 
