@@ -6,7 +6,7 @@ _R. Hopwood, I. Valtchanov, N. Marchili, L.D. Spencer, J. Scott, C. Benson, N. H
 
 ## Abstract
 
-The SPIRE Spectral Feature Finder Catalogue is a result of an automated run of the Spectral Feature Finder (FF). The FF is designed to extract significant spectral features from FTS data products. Only High Resolution (HR) sparse or mapping observations produce spectral features, while for Low Resolution (LR) sparse or mapping observations the FF only provides the best fit continuum parameters. The FF engine iteratively searches for peaks over a set of signal-to-noise ratio (SNR) thresholds, either in the HR spectra of the two central detectors (sparse mode) or in each pixel (SPIRE Long Wavelength - SLW, and SPIRE Short Wavelength - SSW) of the two hyper-spectral cubes (mapping). At the end of each iteration the FF simultaneously fits the continuum and the features found. The residual of the fit is used for the next iteration. The final FF catalogue contains emission and absorption features and their respective SNR for each observation, SNR is negative for absorption features. Line fluxes are not included as extracting reliable line flux from the FTS data is a complex process that requires careful evaluation and analysis of the associated spectra. The FTS Spectral Feature Finder Catalogue is 100% complete for features above SNR=10, and 50-70% complete down to SNR=5. The full SPIRE Automated Feature Extraction Catalogue (SAFECAT) contains 166,442 features from 822 sparse and mapping observations, 163,733 of these features are at SNR > 5 with a subset of XXX features with SNR > 10.
+The SPIRE Spectral Feature Finder Catalogue is a result of an automated run of the Spectral Feature Finder (FF). The FF is designed to extract significant spectral features from FTS data products. Only High Resolution (HR) sparse or mapping observations produce spectral features, while for Low Resolution (LR) sparse or mapping observations the FF only provides the best fit continuum parameters. The FF engine iteratively searches for peaks over a set of signal-to-noise ratio (SNR) thresholds, either in the HR spectra of the two central detectors (sparse mode) or in each pixel (SPIRE Long Wavelength - SLW, and SPIRE Short Wavelength - SSW) of the two hyper-spectral cubes (mapping). At the end of each iteration the FF simultaneously fits the continuum and the features found. The residual of the fit is used for the next iteration. The final FF catalogue contains emission and absorption features and their respective SNR for each observation, SNR is negative for absorption features. Line fluxes are not included as extracting reliable line flux from the FTS data is a complex process that requires careful evaluation and analysis of the associated spectra. The FTS Spectral Feature Finder Catalogue is 100% complete for features above SNR=10, and 50-70% complete down to SNR=5. The full SPIRE Automated Feature Extraction Catalogue (SAFECAT) contains 167,400 features at SNR > 5 from 639 sparse and 179 mapping observations.
 
 ## Table of Contents
 
@@ -31,14 +31,15 @@ The SPIRE Spectral Feature Finder Catalogue is a result of an automated run of t
 
 ## <a name="ff_obs"></a>Observations
 
-The observations with FF products are listed in four coma-separated-value (.csv) files:
+The observations with FF products are listed in four coma-separated-value (.csv) files. Thes are available in the release and also in the legacy area FF [topmost folder](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/):
 
  - `hrSparseObservations.csv`: lists all the high resolution (HR) sparse-mode observations processed by the FF, including the HR part of H+LR observations. For each observation the file provides the following information: observation ID (`obsid`); source name (`target`); if the source is known to be featureless (`knownFeatureless`), and therefore no FF catalogue is provided; if the source has a significant spatial size (*semiExtended* or fully *extended*) or if it is *pointLike* (`sourceExt`); what data product was used for the FF (`dataUsed`), which can be the standard pipeline product *spg* from the *Herschel* Science Archive, a SPIRE Spectrometer calibration source Highly Processed Data Product *calHpdp* or data corrected for high background or foreground emission *bgs*; if a focused check of <sup>12</sup>`CO(7-6)` and `[CI](2-1)`, i.e., the neutral carbon check (ncc), resulted in one of these features being added to the associated FF catalogue (`nccApplied`); and if any `bespokeTreatment` was needed, such as special parameter settings.<br/>
- There are 868 observations in the file, but note that no FF catalogue entry is provided for cases of no spectral features found within an observation.  There are 822 observations that do have FF catalogue entries for spectral features identified.
- - `hrMappingObservations.csv`: lists the HR mapping observations included in the FF run. The file contains the `obsid`, the target name (`target`), the  spectral resolution (`resolution`), the instrument mode (`instmode`) and the spatial sampling (`mapSampling`). <br/>
- There are 180 observations and all of them have FF catalogue entries.
- - `lrSparseObservations.csv`: lists the obsids of the LR sparse observations. There are 293 observations in total. 
- - `lrMappingObservations.csv`: lists the obsids of the LR mapping observations. There are 106 observations.
+ There are 868 observations in the file, but note that no FF catalogue entry is provided for cases of no spectral features found within an observation. 
+ - `hrMappingObservations.csv`: lists the 180 HR mapping `obsids` included in the FF run.
+ - `lrSparseObservations.csv`: lists the 293 LR sparse `obsids` for which continuum parameters are provided. 
+ - `lrMappingObservations.csv`: lists the 106 LR mapping `obsids` with continuum parameters.
+
+Section [Individual FF catalogues and postcards](#ff_wiki) provides links to all the individual `obsid` results.
 
 ## <a name="ff_proc"></a>Feature Finder Algorithm
 
@@ -120,7 +121,7 @@ The final radial velocity estimates included in the FF catalogues (for HR observ
 
 More details on the methods will be provided in *Hopwood et al* and *Hładczuk et al*, both in preparation.
 
-#### Radial velocity metadata and flags
+#### <a name="velflag"></a>Radial velocity metadata and flags
 
 The following radial velocity related metadata are included in each FF catalogue:
 
@@ -151,6 +152,12 @@ For HR mapping observation the initial list of features for the subsequent FF it
 
 ####  Non-standard data
 
+_**Special calibration observations**_
+
+Two observations, 1342227785 and 1342227778, were performed with special setting at two beam-steering mirror positions. In principle the pipeline successfully process them as mapping mode. And they are available in the Herschel Science Archive as spectral cubes. with spatial coverage slightly better than sparse-mode and slightly worse than the intermediate sampling (4 BSM positions).
+
+For the Feature Finder we used those observations as two separate sparse mode observations. In order to avoid files with the same name we changed their obsids to `1001342227785` (BSM position 1) and `2001342227785` (BSM position 2) for `1342227785`, and to `1001342227778` and `2001342227778` for `1342227778`. Hence their postcards, continuum parameters and feature catalogues will be available under these OBSIDs.
+
 _**Highly Processed Data Products**_
 
 - Highly Processed Data Products (HPDPs) are available for the repeated observations of SPIRE Spectrometer calibration sources presented in [Hopwood et al. (2015) (arXiv:1502.05717)](http://adsabs.harvard.edu/abs/2015MNRAS.449.2274H). These HPDPs are SPIRE spectra that have been corrected for pointing offset and, where necessary, for source extent or high background emission.
@@ -160,13 +167,13 @@ _**Highly Processed Data Products**_
 
 _**Background Subtracted (BGS) Spectra**_
 
-- A number of high resolution (HR) observations were visually assessed as suffering from the same "double bump" systematic noise that is corrected in LR data (where it was more extreme and prevalent in a large fraction of LR observations, see Marchili et al. 2016).
+- A number of high resolution (HR) observations were visually assessed as suffering from the same "double bump" systematic noise that is corrected in LR data (where it was more extreme and prevalent in a large fraction of LR observations, see [Marchili et al. (2017)](http://adsabs.harvard.edu/abs/2017MNRAS.464.3331M).
 - This issues is only seen in a small number of HR observations of faint point-like targets (in total 84).
-- The observations were corrected by subtracting a mean sum of smoothed off-axis detectors, as described in Hopwood et al. (2015).
+- The observations were corrected by subtracting a mean sum of smoothed off-axis detectors, as described in [Hopwood et al. (2015)](http://adsabs.harvard.edu/abs/2015MNRAS.449.2274H).
 - All BGS data were corrected using the HIPE Background Subtraction useful script in interactive mode.
 - If BGS data were used instead of the standard _Herschel_ Science Archive product, this is reported under the metadata entry `bgs` for the individual FF feature catalogues, and in the `BGS` column of SAFECAT.
 - The `Flag` column (in the FF HR Sparse point-source calibrated product pages) indicates whether BGS data was used, with a `BGS` flag.
-- [The BGS spectra are available here](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/background_subtracted/).
+- [The BGS spectra are available here](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/BKGS/).
 
 ####  Bespoke FF settings
 
@@ -192,7 +199,7 @@ A handful of missing significant features were added at the appropriate SNR thre
 
 ### <a name="cats"></a>Feature catalogue per observation
 
-The Feature Finder (FF) produces feature catalogues for all SPIRE Spectrometer HR sparse-and mapping mode observations, unless these are of known featureless sources (e.g. Vesta, Ceres) or the target is not included in the FF list of observations (e.g. dark sky and sources with well developed models, including Uranus, Neptune and Mars). Failed observations and calibration observations with unusual settings are also omitted.
+The Feature Finder (FF) produces feature catalogues for all SPIRE Spectrometer HR sparse and mapping mode observations, unless these are of known featureless sources (e.g. Vesta, Ceres) or the target is not included in the FF list of observations (e.g. dark sky and sources with well developed models, including Uranus, Neptune and Mars). Failed observations and calibration observations with unusual settings are also omitted.
 
 The Feature Finder (FF) catalogues are available as FITS files with the catalogue and its metadata in the first Header Data Unit (HDU). 
 
@@ -230,15 +237,15 @@ The catalogue FITS extension metadata contain the following information:
 - an estimate of the source radial velocity (`RV`), the error associated to that estimate (`RV_ERR`) and a radial velocity flag (`RV_FLAG`); these are described in section [_Source radial velocity estimate_](#step5).<br/>
 For **mapping mode** the radial velocity, its error and flag are kept in separate extensions (see above);
 - the source extent (`S_EXTENT`) as classified from assessing the quality of the spectra in comparison to any associated PACS photometer maps (_pointLike_, _semiExtended_ or _extended_). This keyword is not available for **mapping mode**;
-- the calibration scheme used (`CAL_TYPE`, can be _pointSource_ or _extended_) and units of the data (`FLXUNIT` which can be Jy or W/m2/Hz/sr);
+- the calibration scheme used (`CAL_TYPE`, can be _pointSource_ or _extended_) and units of the data (`FLXUNIT` which can be `Jy` or `W/m2/Hz/sr`);
 - The metadata also reports if non-standard spectra were used, i.e. not the SPG product available in the _Herschel_ Science Archive, where either a Highly Processed Data Product (`HPD_USED` = True|False) or spectra that have been corrected for high background or foreground emission (`BGS_USED` = True|False) were used. More information on the HPDPs used by the FF can be found on the [SPIRE-S calibration targets](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/cal_targets) legacy page. The background subtracted data used for the FF can be found [in the _Herschel_ legacy area](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/BKGS/). These are only present for **sparse mode**;
 - Due to the close proximity of <sup>12</sup>`CO(7-6)` and `[CI](2-1)`, at 806.7 and 809.3 GHz respectively, a focused check is performed at the end of the Feature Finder process. If either of this pair is found to be missed by the iterative FF process, the position of the missed line and an improved estimate of its SNR is added to the catalogue and the metadata parameter `CI_CHECK` is set to 1 (True).
 
 ### <a name="safecat"></a>The SPIRE Automated Feature Extraction CATalogue: SAFECAT
 
-The SAFECAT contains all the features found from the catalogues per observation for SPIRE Spectrometer HR observations. SAFECAT is intended as an archive mining tool that can be searched by frequency, position, etc., to provide all SPIRE Spectrometer observations with significant features that match the search criteria. 
+The SAFECAT contains all the features found from the catalogues per observation for SPIRE Spectrometer HR sparse and mapping observations. SAFECAT is intended as an archive mining tool that can be searched by frequency, position, etc., to provide all SPIRE Spectrometer observations with significant features that match the search criteria. 
 
-SAFECAT is distributed as a FITS table with the catalogue and its metadata in the first HDU. The table contains the following columns:
+SAFECAT\_v1 contains only sparse observations and is distributed as a FITS table with the catalogue and its metadata in the first HDU. The table contains the following columns:
 
 - the name of the source observed (`object`);
 - whether the source is <em>point-like</em>, <em>semi-extended</em> or <em>extended</em>, categorised as explained above (`spatialExtent`);
@@ -255,6 +262,27 @@ SAFECAT is distributed as a FITS table with the catalogue and its metadata in th
 - the radial velocity uncertainty in km/s and associated quality flag (`radVelErr, radVelFlag`);
 - whether a highly processed data product or background corrected data product was used (`HPDP, BGS`);
 - and whether a focused check of <sup>12</sup>`CO(7-6)` and `[CI](2-1)` resulted in one of these being added to the catalogue after the main script was run (`ciCheck`);
+
+The metadata provides the feature flag definitions; the minimum SNR cut applied (5); the frequency range avoided at the ends of the bands (10 GHz); and lists two special calibration observations and the unique IDs assigned for the purpose of SAFECAT only, as they consist of two sparse pointings in one observations.
+
+SAFECAT\_v2 contains both sparse and mapping observations contains the following columns:
+
+- `obsid`: the observation ID;
+- `frequency, frequency error`: the fitted feature position in GHz and the error on this measurement, in LSRk frame.
+- `SNR`: the signal-to-noise ratio of fitted peak to local noise in the full residual;
+- `array` the bolometer detector array name where the feature was detected in. For sparse mode `SSW` and `SLW` are used to denote the central detectors `SSWD4` and `SLWC3` respectively. <br/>Note that because of the SLW/SSW band overlap region (944-1018 GHz), features found within the overlap may occur twice for any given observation. This is a potential duplication for **sparse mode**, but is not directly applicable for mapping mode as the spectral maps for SSW and SLW have different WCS, so the overlapping SLW/SSW pixels do not correspond to the exact same spatial coverage region of the sky;
+- `row, column`: the (row,column) pixel for mapping mode or (-1,-1) for sparse;
+- `ra, dec`: the RA and Dec (J2000.0) of the central detectors for sparse mode or the RA and Dec of the corresponding (row,column) pixel for mapping;
+- `featureFlag`: the feature flag, as explained above;
+- `velocity, velErr`: the source radial velocity and its error, in km/s;
+- `velFlag`: the radial velocity flag following subsection [Radial velocity metadata and flags](#velflag).
+- `extent`: whether the source is `pointLike`, `semiExtended` or `extended`, categorised as explained above. It is always `extended` for mapping;
+- `calibration`: which calibration was used. It is always `extended` for mapping, while for sparse could be either `extended` or `pointSource`.
+- `sampling`: the spatial sampling of the observations, can be `sparse`, `intermediate` or `full`. 
+- the operational day the observation was taken and the observation identifier (`opDay`);
+- `galactic`: whether the source is considered galactic (0) or extragalactic (1), based on the radial velocity;
+- `opDay`: the operation day for the observation;
+- `hpdp`: whether a highly processed data product was used by the Feature Finder;
 
 The metadata provides the feature flag definitions; the minimum SNR cut applied (5); the frequency range avoided at the ends of the bands (10 GHz); and lists two special calibration observations and the unique IDs assigned for the purpose of SAFECAT only, as they consist of two sparse pointings in one observations.
 
