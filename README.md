@@ -31,7 +31,7 @@ The SPIRE Spectral Feature Finder Catalogue is the result of an automated run of
 
 ## <a name="ff_obs"></a>Observations
 
-The observations with FF products are listed in four coma-separated-value (.csv) files. Thes are available in the release and also in the legacy area FF [topmost folder](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/):
+The observations with FF products are listed in four coma-separated-value (.csv) files. These are available in the release and also in the FF legacy area [topmost folder](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/):
 
  - `hrSparseObservations.csv`: lists all the high resolution (HR) sparse-mode observations processed by the FF, including the HR part of H+LR observations. For each observation the file provides the following information: observation ID (`obsid`); source name (`target`); if the source is known to be featureless (`knownFeatureless`), and therefore no FF catalogue is provided; if the source has a significant spatial size (*semiExtended* or fully *extended*) or if it is *pointLike* (`sourceExt`); what data product was used for the FF (`dataUsed`), which can be the standard pipeline product *spg* from the *Herschel* Science Archive, a SPIRE Spectrometer calibration source Highly Processed Data Product *calHpdp* or data corrected for high background or foreground emission *bgs*; if a focused check of <sup>12</sup>`CO(7-6)` and `[CI](2-1)`, i.e., the neutral carbon check (ncc), resulted in one of these features being added to the associated FF catalogue (`nccApplied`); and if any `bespokeTreatment` was needed, such as special parameter settings.<br/>
  There are 868 observations in the file, but note that no FF catalogue entry is provided for cases of no spectral features found within an observation. 
@@ -45,15 +45,17 @@ Section [Individual FF catalogues and postcards](#ff_wiki) provides links to all
 
 The _Herschel_ SPIRE Spectral Feature Finder (FF) finding and fitting process is summarised by the [FF flowchart](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/FF_1stRelease_products/doc/featureFinder_flowchart.pdf) and described in full in _Hopwood et al._ (in preparation). This document briefly describes the main steps of the FF algorithm.
 
-The FTS has two overlapping spectral bands: SSW (191-310 &mu;m or 1568-944 GHz) and SLW (294-671 &mu;m or 1018-447 GHz). They share an overlap region in 294-310 &mu;m (1018-944 GHz). The primary input to the FF script is a single, per band spectrum, that has been extracted from one of the centre detectors (sparse mode) or a single spectrum from each of the two per band hyper-spectral cube spaxels (mapping).
+The SPIRE FTS has two overlapping spectral bands: Spectrometer Short Wavelength, SSW (191-310 &mu;m or 1568-944 GHz) and Spectrometer Long Wavelength, SLW (294-671 &mu;m or 1018-447 GHz). They share an overlap region of 294-310 &mu;m (1018-944 GHz). The primary input to the FF script is a single, per band spectrum, that has been extracted from one of the centre detectors (sparse mode) or a single spectrum from each of the two per band hyper-spectral cube spaxels (mapping).
 
-Each feature found is fitted using a sinc-function (`sin(x)/x`) profile of fixed width, with the width set using the actual resolution of the input data.
+Each feature found is fitted using a sinc-function (`sin(x)/x`) profile of fixed width, with the width set using the actual spectral resolution of the input data.
 
 The following steps are carried out:
 
 ### 1. <a name="step1"></a> Fitting and subtracting the continuum
 
-A resampled copy of the input spectrum is shifted by one frequency bin (5 GHz) and subtracted from itself, to look for "jumps" that correspond to significant peaks. The strong peaks are masked in the input spectrum before a 3<sup>rd</sup> order polynomial is fitted (2<sup>nd</sup> order for low resolution observations). Neither the masking nor the peaks are carried forward into the main finding loop, only the polynomial model.
+A resampled copy of the input spectrum is shifted by one frequency bin (5 GHz --LR, 1 GHz -- HR) 
+[FIXME_LS: isn't 1 frequency bin ~1 GHz for HR spectra?]
+and subtracted from itself, to look for "jumps" that correspond to significant peaks. The strong peaks are masked in the input spectrum before a 3<sup>rd</sup> order polynomial is fitted (2<sup>nd</sup> order for low resolution observations). Neither the masking nor the peaks are carried forward into the main finding loop, only the polynomial model.
 
 This is the only stage for LR observations (sparse or mapping) for which we only keep the derived continuum parameters.
 
@@ -63,7 +65,7 @@ We use the following SNR thresholds:  +[100, 50, 30, 10, 5, 3] for emission and 
 
 For each threshold, the signal-to-noise ratio (SNR) spectrum is taken using the model subtracted residual and the spectrum dataset "error" column (for the first iteration the continuum model is subtracted).
 
-Peaks are determined by merging all data points that sit above the SNR threshold, within a 10 GHz width per peak.
+Peaks are determined by merging all SNR data points that sit above the SNR threshold, within a 10 GHz width per peak.
 
 Each new peak represents a potential new feature, so a sinc function is added to the total model (polynomial + sinc) per new peak found.
 
@@ -77,9 +79,9 @@ The resulting total model is carried forward to the next iteration, with the fre
 
 ### 3. <a name="step3"></a>Final SNR estimate and final check
 
-The final SNR is calculated using the fitted peaks and the total-model-subtracted residual spectrum as `[fitted peak]/[local standard deviation]`.
+The final SNR is calculated using the fitted peaks and the total-model-subtracted residual spectrum as `[fitted peak amplitude]/[local standard deviation]`.
 
-Features with absolute SNR > 5 are carried forward to the final check - a search for fitting to the sinc wings of significant features, while trying to preserve any \[CI\](2-1) detection.
+Features with absolute(SNR) > 5 are carried forward to the final check - a search to discriminate unique features from fitting to the sinc wings of neighbouring significant features, while trying to preserve any \[CI\](2-1) detection.
 
 ### 4. <a name="step4"></a>FF feature flags
 
@@ -87,7 +89,7 @@ To assess the distinction between false and true spectral features and to identi
 
 The Feature Finder requires a goodness of fit metric that is not sensitive to the continuum or to line flux. Such a statistical metric, `r`, is calculated using a cross-correlation function between fitted feature and total model. `r` is not sensitive to the continuum, due to the subtraction of the local mean. `r` is also not sensitive to line flux, because of division by the standard deviation of a given spectral region.
 
-ToFE is a Bayesian method to compare the evidence (also known as model likelihood) for two concurrent models: with and without a particular feature included. It is therefore complimentary to the `r` parameter identified above. For both models the fitting engine calculates the evidence, which is a set of probability logarithms. Their difference provides the odds for the feature, the smaller the odds the better the model with the feature included. As this is a probabilistic check, no assumption about the noise is made and therefore ToFE is insensitive to systematic noise.
+The ToFE step involves a Bayesian method to compare the evidence (also known as model likelihood) for two concurrent models: with and without a particular feature included. It is therefore complimentary to the `r` parameter identified above. For both models the fitting engine calculates the evidence, which is a set of probability logarithms. Their difference provides the odds for the feature, the smaller the odds the better the model with the feature included. As this is a probabilistic check, no assumption about the noise is made and therefore ToFE is insensitive to systematic noise.
 
 #### Flag definitions (metadata keyword)
 
@@ -119,7 +121,7 @@ At the end of the Feature Finder (FF) process, for each high resolution (HR) obs
 
 The final radial velocity estimates included in the FF catalogues (for HR observations) are selected from all the available values.
 
-More details on the methods will be provided in *Hopwood et al* and *Hładczuk et al*, both in preparation.
+More details on the methods will be provided in *Hopwood et al*, *Scott et al*, and *Hładczuk et al*, all in preparation.
 
 #### <a name="velflag"></a>Radial velocity metadata and flags
 
@@ -132,9 +134,9 @@ The following radial velocity related metadata are included in each FF catalogue
     * `FF?` - good estimate based on the Feature Finder <sup>12</sup>`CO` or `[NII]` checks, but either the difference with the HIFI provided value is larger than 20 km/s or the fractional difference is above 20%.
     * `XCOR`- confident estimate based on the cross-correlation method and `[NII]`, <sup>12</sup>`CO(7-6)` checks, also in agreement with the HIFI team collected radial velocities: either the difference is less than 20 km/s or the fractional difference is within 20%.
     * `XCOR?` - good estimate based on the cross-correlation method and `[NII]`, <sup>12</sup>`CO(7-6)` checks, but either the difference with the HIFI provided values is larger than 20 km/s or the fractional difference is above 20%.
-    * `H?` - when none of the FF or XCOR methods have reliable estimate then we use the HIFI provided value. As the target names between HIFI and SPIRE may be different, as these are provided by the _Herschel_ observers, we search the HIFI list for the nearest neighbour within 6 arcsec of the SPIRE central detector sky coordinates.
+    * `H?` - when none of the FF or XCOR methods have reliable estimate then we use the HIFI provided value, if available. As the target names between HIFI and SPIRE may be different, as these are provided by the _Herschel_ observers, we search the HIFI list for the nearest neighbour within 6 arcsec of the SPIRE central detector sky coordinates.
     * `S?` - when there is no HIFI provided value and there are no good estimates by the FF and XCOR we use the radial velocity from [Simbad](http://simbad.u-strasbg.fr/simbad/). We search Simbad within 6 arcsec of the FTS central detector sky coordinates and assign the radial velocity from the nearest neighbour.
-    * `nan` - when neither method provide an estimate and no radial velocity information is available from Simbad and HIFI.
+    * `nan` - when neither internal method provide an estimate and no radial velocity information is available from Simbad or HIFI.
 
 *Warning:*
 
@@ -142,7 +144,7 @@ The radial velocities are still preliminary and in many cases, where there are o
 
 ### 6. <a name="step6"></a>Neutral Carbon Check
 
-The Neutral Carbon Check (NCC) is a focused check of the <sup>12</sup>CO(7-6) and \[CI\](2-1) spectral region using the radial velocity from the previous step and the known positions of these lines. If either one of these neighbouring features were missed by the main FF process, the NCC-identified missing feature is added to the final list of features found.
+The Neutral Carbon Check (NCC) is a focused check of the <sup>12</sup>CO(7-6) and \[CI\](2-1) spectral region using the radial velocity from the previous step and the known rest positions of these lines. If either one of these neighbouring features were missed by the main FF process, the NCC-identified missing feature is added to the final list of features found, and is flagged accordingly.
 
 ### 7. <a name="step7"></a>Bespoke Handling
 
@@ -154,15 +156,15 @@ For HR mapping observation the initial list of features for the subsequent FF it
 
 _**Special calibration observations**_
 
-Two observations, 1342227785 and 1342227778, were performed with special setting at two beam-steering mirror positions. In principle the pipeline successfully process them as mapping mode. And they are available in the Herschel Science Archive as spectral cubes. with spatial coverage slightly better than sparse-mode and slightly worse than the intermediate sampling (4 BSM positions).
+Two observations, 1342227785 and 1342227778, were performed with special settings at two beam-steering mirror positions. In principle the pipeline successfully process them as mapping mode observations, and they are available in the Herschel Science Archive as spectral cubes with spatial coverage slightly better than sparse-mode and slightly worse than the intermediate sampling (4 BSM positions).
 
-For the Feature Finder we used those observations as two separate sparse mode observations. In order to avoid files with the same name we changed their obsids to `1001342227785` (BSM position 1) and `2001342227785` (BSM position 2) for `1342227785`, and to `1001342227778` and `2001342227778` for `1342227778`. Hence their postcards, continuum parameters and feature catalogues will be available under these OBSIDs.
+For the Feature Finder we used those observations as two separate sparse mode observations. In order to avoid files with the same name we changed their obsids to `1001342227785` (BSM position 1) and `2001342227785` (BSM position 2) for `1342227785`, and to `1001342227778` and `2001342227778` for `1342227778`. Hence their postcards, continuum parameters and feature catalogues will be available under these modified OBSIDs.
 
 _**Highly Processed Data Products**_
 
 - Highly Processed Data Products (HPDPs) are available for the repeated observations of SPIRE Spectrometer calibration sources presented in [Hopwood et al. (2015) (arXiv:1502.05717)](http://adsabs.harvard.edu/abs/2015MNRAS.449.2274H). These HPDPs are SPIRE spectra that have been corrected for pointing offset and, where necessary, for source extent or high background emission.
 - If an HPDP was used instead of the standard _Herschel_ Science Archive product, this is reported under the metadata entry `hpdp` for the individual FF feature catalogues, and in the `HPDP` column of SAFECAT.
-- The `Flag` column (in [the FF HR Sparse point-source calibrated product pages](http://herschel.esac.esa.int/twiki/bin/view/Public/HrSparsePage01)) indicates whether a HPDP was used, with a `HPDP` flag.
+- The `Flag` column (in [the FF HR Sparse point-source calibrated product pages](http://herschel.esac.esa.int/twiki/bin/view/Public/HrSparsePage01)) indicates whether an HPDP was used, with an `HPDP` flag.
 - The HPDPs themselves can be accessed from the [SPIRE-S calibration targets legacy data page](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/cal_targets).
 
 _**Background Subtracted (BGS) Spectra**_
@@ -177,11 +179,11 @@ _**Background Subtracted (BGS) Spectra**_
 
 ####  Bespoke FF settings
 
-If, for a particular observations, non-default FF parameters were used or bespoke treatment was applied, this is indicated with a "1" in the `bespokeTreatment` column of [hrSparseObservations.csv](hrSparseObservations.csv), which lists all HR observations for which there is a set of FF products.
+If, for a particular observation, non-default FF parameters were used or bespoke treatment was applied, this is indicated with a "1" in the `bespokeTreatment` column of [hrSparseObservations.csv](hrSparseObservations.csv), which lists all HR observations for which there is a set of FF products.
 
 _**Fewer negative SNR thresholds**_
 
-By default, the FF iterates over a number of SNR thresholds when looking for peaks: +[100, 50, 30, 10, 5, 3] followed by [-100, -50, -30, -10]. For one particularly spectral rich observation (OBSID: 1342210847), if the default set of negative SNR thresholds is used, there are so many features found that there are not enough unmasked data points available for the final SNR estimates, and thus many features are discarded. This loss of features is prevented by omitting the -30 and -10 SNR threshold iterations.
+By default, the FF iterates over a number of SNR thresholds when looking for peaks: +[100, 50, 30, 10, 5, 3] followed by [-100, -50, -30, -10] for absorption features. For one particularly spectral rich observation (OBSID: 1342210847), if the default set of negative SNR thresholds is used, there are so many features found that there are not enough unmasked data points available for the final SNR estimates, and thus many features are discarded. This loss of features is prevented by omitting the -30 and -10 SNR threshold iterations.
 
 _**Final SNR estimate**_
 
@@ -205,7 +207,7 @@ The Feature Finder (FF) catalogues are available as FITS files with the catalogu
 
 The **sparse mode** catalogue table contains the following columns:
 
-- `frequency` - the measured frequency, in GHz, of features found with SNR > 5 (noting that negative SNR correspond to absorption features)
+- `frequency` - the measured frequency, in GHz, of features found with absolute(SNR) > 5 (noting that negative SNR corresponds to absorption features)
 - `frequencyError` - the error on the measured frequency, also in GHz
 - `SNR` - the SNR measured using the fitted peak and the local noise in the residual spectrum (after the total fitted model has been subtracted)
 - `detector` - which detector the feature was found in (SLWC3 or SSWD4 for sparse-mode observations)
@@ -225,7 +227,7 @@ The **mapping mode** catalogue table contains the following _additional_ columns
 
 **Note:** the SSW and SLW hyper-spectral cubes have different world-coordinate-systems (WCS), their pixel size and centres are not matched, i.e., `row` and `column` are `array` dependent. This is clearly evident within the SLW and SSW maps presented in the mapping postacrds.
 
-In addition to the catalogue table, the mapping FITS file contains 3 more HDU extensions: `velocity`, `velError` and `velFlag`. These have the same dimensions as the SSW cube and each pixel contains the derived velocity from both SSW and SLW, its error, and flag, respectively. Pixels without velocity estimate are encoded as `NaN`.
+In addition to the catalogue table, the mapping FITS file contains 3 more HDU extensions: `velocity`, `velError` and `velFlag`. These have the same dimensions as the SSW cube and each pixel contains the derived velocity from both SSW and SLW spectra, the velocity estimate error, and flag, respectively. Pixels without a velocity estimate are encoded as `NaN`.
 
 The catalogue FITS extension metadata contain the following information:
 
@@ -234,12 +236,12 @@ The catalogue FITS extension metadata contain the following information:
 - some FF input parameters; the minimum SNR cut applied (`MIN_SNR` equal to 5) and the region avoided at the ends of the frequency bands (`EDGE_MASK` equal to 10 GHz);
 - the maximum value of the fitted continuum in SSWD4, `MAX_CONT`;
 - how many features were found per detector: `N_SSW` and `N_SLW`;
-- an estimate of the source radial velocity (`RV`), the error associated to that estimate (`RV_ERR`) and a radial velocity flag (`RV_FLAG`); these are described in section [_Source radial velocity estimate_](#step5).<br/>
+- an estimate of the source radial velocity (`RV`), the error associated with that estimate (`RV_ERR`) and a radial velocity flag (`RV_FLAG`); these are described in section [_Source radial velocity estimate_](#step5).<br/>
 For **mapping mode** the radial velocity, its error and flag are kept in separate extensions (see above);
-- the source extent (`S_EXTENT`) as classified from assessing the quality of the spectra in comparison to any associated PACS photometer maps (_pointLike_, _semiExtended_ or _extended_). This keyword is not available for **mapping mode**;
+- the source extent (`S_EXTENT`), as classified from assessing the quality of the spectra in comparison to any associated PACS photometer maps (_pointLike_, _semiExtended_ or _extended_). This keyword is not available for **mapping mode** (where extended source calibration is used by default);
 - the calibration scheme used (`CAL_TYPE`, can be _pointSource_ or _extended_) and units of the data (`FLXUNIT` which can be `Jy` or `W/m2/Hz/sr`);
 - The metadata also reports if non-standard spectra were used, i.e. not the SPG product available in the _Herschel_ Science Archive, where either a Highly Processed Data Product (`HPD_USED` = True|False) or spectra that have been corrected for high background or foreground emission (`BGS_USED` = True|False) were used. More information on the HPDPs used by the FF can be found on the [SPIRE-S calibration targets](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/cal_targets) legacy page. The background subtracted data used for the FF can be found [in the _Herschel_ legacy area](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/BKGS/). These are only present for **sparse mode**;
-- Due to the close proximity of <sup>12</sup>`CO(7-6)` and `[CI](2-1)`, at 806.7 and 809.3 GHz respectively, a focused check is performed at the end of the Feature Finder process. If either of this pair is found to be missed by the iterative FF process, the position of the missed line and an improved estimate of its SNR is added to the catalogue and the metadata parameter `CI_CHECK` is set to 1 (True).
+- Due to the close proximity of <sup>12</sup>`CO(7-6)` and `[CI](2-1)`, with rest frame transitions at 806.7 and 809.3 GHz, respectively, a focused check is performed at the end of the Feature Finder process. If either feature of this pair is found to be present, but missed by the iterative FF process, the position of the missed line and an improved estimate of its SNR is added to the catalogue and the metadata parameter `CI_CHECK` is set to 1 (True) for that feature.
 
 ### <a name="safecat"></a>The SPIRE Automated Feature Extraction CATalogue: SAFECAT
 
@@ -250,47 +252,47 @@ SAFECAT\_v1 contains only sparse observations and is distributed as a FITS table
 - the name of the source observed (`object`);
 - whether the source is <em>point-like</em>, <em>semi-extended</em> or <em>extended</em>, categorised as explained above (`spatialExtent`);
 - the operational day the observation was taken and the observation identifier (`operationalDay`, `obsid`);
-- the (row,column) pixel for mapping mode or (0,0) for sparse (`row, column`);
-- the RA and Dec of the central detectors for sparse mode or the RA and Dec of the corresponding (row,column) pixel for mapping (`RA, Dec`);
+- the (row,column) pixel for mapping mode or (0,0) for sparse mode (`row, column`);
+- the RA and Dec of the central detectors for sparse mode or the RA and Dec of the corresponding (row,column) pixel for mapping mode (`RA, Dec`);
 - the bias mode of the observation, which can be nominal or bright (`biasMode`);
-- the bolometer detector name (sparse) or array name (mapping) the feature was detected in  (`detector`). <br/>Note that because of the SLW/SSW band overlap region (944-1018 GHz), features found within the overlap may occur twice for any given observation. This is a potential duplication for **sparse mode**, but is not directly applicable for mapping mode as the spectral maps for SSW and SLW have different WCS, so the overlapping SLW/SSW pixels do not correspond to the exact same spatial coverage region of the sky;
+- the bolometer detector name (sparse) or array name (mapping) the feature was detected in (`detector`). <br/>Note that because of the SLW/SSW band overlap region (944-1018 GHz), features found within the overlap may occur twice for any given observation. This is a potential duplication for **sparse mode**, but is not directly applicable for mapping mode as the spectral maps for SSW and SLW have different WCS, so the overlapping SLW/SSW pixels do not correspond to the exact same spatial coverage region of the sky;
 - the maximum SLW continuum level (`maxContinuum`);
 - the fitted feature position in GHz and the error on this measurement (`frequency, frequency error`), in LSRk frame.
 - the signal-to-noise ratio of fitted peak to local noise in the full residual (`SNR`);
 - the feature flag, as explained above (`featureFlag`);
-- the source radial velocity, in km/s, estimated from the Feature Finder results or the associated HIFI estimate (which comes from published literature) or from SIMBAD;
+- the source radial velocity, in km/s, estimated from the Feature Finder results, or the associated HIFI estimate (which comes from published literature), or from SIMBAD;
 - the radial velocity uncertainty in km/s and associated quality flag (`radVelErr, radVelFlag`);
 - whether a highly processed data product or background corrected data product was used (`HPDP, BGS`);
 - and whether a focused check of <sup>12</sup>`CO(7-6)` and `[CI](2-1)` resulted in one of these being added to the catalogue after the main script was run (`ciCheck`);
 
-The metadata provides the feature flag definitions; the minimum SNR cut applied (5); the frequency range avoided at the ends of the bands (10 GHz); and lists two special calibration observations and the unique IDs assigned for the purpose of SAFECAT only, as they consist of two sparse pointings in one observations.
+The metadata provides the feature flag definitions; the minimum SNR cut applied (5); the frequency range avoided at the ends of the bands (10 GHz); and lists two special calibration observations and the unique IDs assigned for the purpose of SAFECAT only, as they consist of two sparse pointings in one observation.
 
-SAFECAT\_v2 contains both sparse and mapping observations contains the following columns:
+SAFECAT\_v2 contains both sparse and mapping observations, and contains the following columns:
 
 - `obsid`: the observation ID;
 - `frequency, frequency error`: the fitted feature position in GHz and the error on this measurement, in LSRk frame.
 - `SNR`: the signal-to-noise ratio of fitted peak to local noise in the full residual;
-- `array` the bolometer detector array name where the feature was detected in. For sparse mode `SSW` and `SLW` are used to denote the central detectors `SSWD4` and `SLWC3` respectively. <br/>Note that because of the SLW/SSW band overlap region (944-1018 GHz), features found within the overlap may occur twice for any given observation. This is a potential duplication for **sparse mode**, but is not directly applicable for mapping mode as the spectral maps for SSW and SLW have different WCS, so the overlapping SLW/SSW pixels do not correspond to the exact same spatial coverage region of the sky;
-- `row, column`: the (row,column) pixel for mapping mode or (-1,-1) for sparse;
+- `array` the bolometer detector array name where the feature was detected. For sparse mode `SSW` and `SLW` are used to denote the central detectors `SSWD4` and `SLWC3` respectively. <br/>Note that because of the SLW/SSW band overlap region (944-1018 GHz), features found within the overlap may occur twice for any given observation. This is a potential duplication for **sparse mode**, but is not directly applicable for mapping mode as the spectral maps for SSW and SLW have different WCS, so the overlapping SLW/SSW pixels do not correspond to the exact same spatial coverage region of the sky;
+- `row, column`: the (row,column) pixel for mapping mode or (-1,-1) for sparse; [FIXME_LSedit: v1 is (0,0) and v2 is (-1,-1), do we want it this way?]
 - `ra, dec`: the RA and Dec (J2000.0) of the central detectors for sparse mode or the RA and Dec of the corresponding (row,column) pixel for mapping;
 - `featureFlag`: the feature flag, as explained above;
 - `velocity, velErr`: the source radial velocity and its error, in km/s;
 - `velFlag`: the radial velocity flag following subsection [Radial velocity metadata and flags](#velflag).
 - `extent`: whether the source is `pointLike`, `semiExtended` or `extended`, categorised as explained above. It is always `extended` for mapping;
 - `calibration`: which calibration was used. It is always `extended` for mapping, while for sparse could be either `extended` or `pointSource`.
-- `sampling`: the spatial sampling of the observations, can be `sparse`, `intermediate` or `full`. 
-- the operational day the observation was taken and the observation identifier (`opDay`);
+- `sampling`: the spatial sampling of the observations, can be `sparse`, `intermediate`, or `full`. 
+- the operational day the observation was taken and the observation identifier, (`opDay`) and (`obsid);
 - `galactic`: whether the source is considered galactic (0) or extragalactic (1), based on the radial velocity;
-- `opDay`: the operation day for the observation;
-- `hpdp`: whether a highly processed data product was used by the Feature Finder;
+- `opDay`: the operation day for the observation; [FIXME_LSedit: this is redundant with the entry two lines above.]
+- `hpdp`: whether a highly processed data product was used as input to the Feature Finder;
 
 The metadata provides the feature flag definitions; the minimum SNR cut applied (5); the frequency range avoided at the ends of the bands (10 GHz); and lists two special calibration observations and the unique IDs assigned for the purpose of SAFECAT only, as they consist of two sparse pointings in one observations.
 
 ### <a name="cont"></a> Continuum fit parameters
 
-The SPIRE FTS instrumental line shape is essentially a sinc-function (`sin(x)/x`). The sinc-like wings of each feature introduce ringing, which although decreasing in amplitude, does extend over the whole frequency range. Therefore, to gain a good fit to the continuum, this should be simultaneously fitted with the main spectral features.
+The SPIRE FTS instrumental line shape (ILS) is essentially a sinc-function (`sin(x)/x`). The sinc-like wings of each feature introduce ringing, which, although decreasing in amplitude, does extend over the whole frequency range. Therefore, to gain a good fit to the continuum, this sinc ILS should be simultaneously fitted with the main spectral features.
 
-During the Feature Finder finding and fitting process, a 3<sup>rd</sup> order polynomial (2<sup>nd</sup> order for LR) is fitted to the continuum of each _per band_ spectrum in conjunction with sinc functions for each feature found. The resulting continuum fit may be hard to precisely recreate, unless a similar procedure is carried out. Therefore the best fit polynomial parameters are provided with the other Feature Finder products.
+During the Feature Finder finding and fitting process, a 3<sup>rd</sup> order polynomial (2<sup>nd</sup> order for LR) is fitted to the continuum of each _per band_ spectrum in conjunction with sinc functions for each feature found. The resulting continuum fit may be hard to precisely recreate, unless a similar procedure is carried out. Therefore the best fit polynomial parameters for the continuum are provided with the other Feature Finder products.
 
 The parameters are of the form:<br/> `p0 + p1*freq + p2*freq^2 + p3*freq^3` (or `p0 + p1*freq + p2*freq^2` for LR).
 
@@ -310,11 +312,11 @@ If an observation of interest is of a partially or fully extended source, it is 
 
 For LR observations no features are provided, as LR was primarily aimed at providing a measurement of the continuum and there are few features found in these observations. However, two postcards are provided for LR, as many targets are semi-extended in nature and simply by comparing the postcards it may be possible to gauge which calibration scheme is more appropriate (or if there is a problem that may require further processing to correct for partial extent). Visual inspection should evaluate the continuity of the SLW/SSW spectra within the spectral overlap region.
 
-All HR and LR postcards are collected in the the [POSTcard CATalogues (POSTCATs)](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/FF_1stRelease_products/POSTcardCAT/). These are provided as PDF files. There are POSTCATs that compare the point-source and extended-source calibrated results. For LR there is also a mapping POSTCAT that compares the results for the two types of hyper-spectral cubes available in the <em>Herschel</em> Science Archive.
+All HR and LR postcards are collected in the [POSTcard CATalogues (POSTCATs)](http://archives.esac.esa.int/hsa/legacy/HPDP/SPIRE/SPIRE-S/spectral_feature_catalogue/FF_1stRelease_products/POSTcardCAT/). These are provided as PDF files. There are also POSTCATs that compare the point-source and extended-source calibrated results. For LR there is also a mapping POSTCAT that compares the results for the two types of hyper-spectral cubes available in the <em>Herschel</em> Science Archive.
 
 ### Mapping mode
 
-The Feature Finder mapping results are also visually summarised per observation in a “postcard”. Each postcard is comprised of a 2x3 array of figures illustrating various aspects of the observation.  The left column illustrates the integrated flux associated with each band, with SLW on top and SSW on the bottom. Note the difference in pixel sizes for the SLW and SSW maps. Each of the integrated flux maps in the left column have two pixels identified for each band with coloured box outlines. For the SSW array, these correspond to the dimmest and brightest pixels within the map.  For the SLW array these pixels correspond to the closest SLW pixels to the identified brightest and dimmest pixels for the SSW array. The central column presents the spectra corresponding to the flagged pixels in the flux maps (brightest and dimmest integrated flux pixels for SSW, closet match for the SLW array) with SLW on top and SSW on the bottom. Also shown in the central column is the spectrum corresponding to the pixel with the most spectral features identified by the FF, again with SLW on top and SSW on the bottom. The upper right figure is a map of the number of lines identified by the FF in both the SLW and SSW arrays combined. This figure also has the pixel regions associated with the most lines in the SLW and SSW arrays identified with coloured box outlines. As the SLW pixels are larger than the SSW pixels, the SLW lines may be counted in multiple SSW pixels within this FF histogram map.  The lower right figure presents the FF radial velocities provided by the radial velocity routine. The results are shown on SSW pixels, with the pixel colour indicating the velocity (colourbar on the side), and a code within each SSW pixel indicating the quality of the radial velocity. Within the radial velocity map, a marker of `A' means all of the expected CO lines contributed to the radial velocity estimate, `N' means that the [NII] nitrogen spectral feature was used, and a number indicates the number of CO lines used in the radial velocity estimate (less than all of the expected lines were identified).  The header of the mapping postcard indicates the target name, as provided by the observer, and the observation number (OBSID).  Pixels outlined in green on the velocity map highlight pixels where the feature finder did find spectral features but the radial velocity routine did not provide an accurate velocity estimate. 
+The Feature Finder mapping results are also visually summarised per observation in a mapping “postcard”. Each postcard is comprised of a 2x3 array of figures illustrating various aspects of the observation.  The left column illustrates the integrated flux associated with each band, with SLW on the top and SSW on the bottom. Note the difference in pixel sizes for the SLW and SSW maps. Each of the integrated flux maps in the left column have two pixels identified for each band with coloured box outlines. For the SSW array, these correspond to the dimmest and brightest pixels within the map.  For the SLW array these pixels correspond to the closest SLW pixels to the identified brightest and dimmest pixels for the SSW array. The central column presents the spectra corresponding to the flagged pixels in the flux maps (brightest and dimmest integrated flux pixels for SSW, closet match for the SLW array) with SLW on top and SSW on the bottom. Also shown in the central column is the spectrum corresponding to the pixel with the most spectral features identified by the FF, again with SLW on top and SSW on the bottom. The upper right figure is a map of the number of lines identified by the FF in both the SLW and SSW arrays combined. This figure also has the pixel regions associated with the most lines in the SLW and SSW arrays identified with coloured box outlines. As the SLW pixels are larger than the SSW pixels, the SLW lines may be counted in multiple SSW pixels within this FF histogram map.  The lower right figure presents the FF radial velocities provided by the radial velocity routine. The results are shown on SSW pixels, with the pixel colour indicating the velocity (colourbar on the side), and a code within each SSW pixel indicating the quality of the radial velocity. Within the radial velocity map, a marker of `A' means all of the expected CO lines contributed to the radial velocity estimate, `N' means that the [NII] nitrogen spectral feature was used, and a number indicates the number of CO lines used in the radial velocity estimate (less than all of the expected lines were identified).  The header of the mapping postcard indicates the target name, as provided by the observer, and the observation number (OBSID).  Pixels outlined in green on the velocity map highlight pixels where the feature finder did find spectral features but the radial velocity routine did not provide an accurate velocity estimate. 
 
 # <a name="ff_web"></a>FF products access 
 
@@ -329,7 +331,7 @@ All products are combined in a single tar.gz file: [FF\_v2.tar.gz](../FF_v2.tar.
 **TBW**
 
 _the text below is obsolete_
-
+[FIXME_LSedit: I have not reviewed the lines below as I take the above comment at face value...]
 
 At the top level, there are a number of folders and CSV files
 ([hrSparseObservations\_FF\_1stRelease.csv](http://archives.esac.esa.int
